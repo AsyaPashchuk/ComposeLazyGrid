@@ -1,4 +1,4 @@
-package com.composelazygrid
+package com.composelazygrid.problem1
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

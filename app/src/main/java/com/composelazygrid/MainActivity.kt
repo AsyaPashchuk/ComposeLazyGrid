@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.GridCells
 
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -27,12 +26,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.composelazygrid.problem1.MainViewModel
+import com.composelazygrid.problem1.RgbSelector
+import com.composelazygrid.problem3.CustomGrid
+import com.composelazygrid.problem3.FeedViewModel
 import com.composelazygrid.ui.theme.ComposeLazyGridTheme
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -41,17 +43,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeLazyGridTheme {
-                val viewModel = viewModel<MainViewModel>()
-
                 //Problem 1 with recompose (mutable and immutable for recompose)
                 //Resolve 2 for the complex lambda fun
                 //remember - marks as stable and wouldn't do the recompose
                 //so if you use state for parameters in your code it wouldn't recompose all views
+                val viewModel1 = viewModel<MainViewModel>()
+
                 val changeColorLambda = remember<(Color) -> Unit> {
                     {
-                        viewModel.changeColor(it)
+                        viewModel1.changeColor(it)
                     }
                 }
+
+                //Problem3 with custom grid layout where every field will be recomposed
+                //With shuffling layouts compose doesn't have instrument
+                // for custom grid/row/column layouts
+                // to compare fields if they change the order
+                //So we need to add keys by hand (like in LazyColumn/Row etc)
+                val viewModel2 = viewModel<FeedViewModel>()
+                val feeds = viewModel2.feeds
 
                 val lazyState = rememberLazyListState(
                     initialFirstVisibleItemIndex = 3
@@ -64,19 +74,36 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    //Problem3 with custom grid layout where every field will be recomposed
+                    //With shuffling layouts compose doesn't have instrument
+                    // for custom grid/row/column layouts
+                    // to compare fields if they change the order
+                    //So we need to add keys by hand (like in LazyColumn/Row etc)
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        CustomGrid(
+                            feeds = feeds,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Button(onClick = { viewModel2::rearrangeFeeds }) {
+                            Text(text = "Shuffle feeds")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     RgbSelector(
-                        color = viewModel.color,
+                        color = viewModel1.color,
 
                         //Problem 1 with recompose (mutable and immutable for recompose)
                         // That lambda fun will create an anonymous class,
                         // so compose will recompose all views with this lambda fun
 //                        onColorClick = {
-//                            viewModel.changeColor(it)
+//                            viewModel1.changeColor(it)
 //                        }
                         //Resolve 1
                         //For resolve it you may do this only if the viewmodel fun except
                         //the parameter that the lambda fun provides
-//                        onColorClick = viewModel::changeColor
+//                        onColorClick = viewModel1::changeColor
 
                         //Resolve 2
                         onColorClick = changeColorLambda

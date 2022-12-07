@@ -1,4 +1,4 @@
-package com.composelazygrid
+package com.composelazygrid.problem1
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
