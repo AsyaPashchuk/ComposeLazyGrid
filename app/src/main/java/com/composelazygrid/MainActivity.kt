@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             val intent = Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://insta.com/456")
+//                                Uri.parse("https://insta.com/456")
+                                Uri.parse("https://insta.com/Nika")
                             )
                             val pendingIntent = TaskStackBuilder.create(applicationContext)
                                 .run {
